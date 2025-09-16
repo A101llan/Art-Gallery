@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artwork - Usanii Mashariki</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <style>
+        :root { --primary:#2c5530; --secondary:#8B4513; --accent:#D4AF37; --light:#f8f9fa; --dark:#2c3e50; --white:#fff; --radius:12px; }
+        body { margin:0; font-family: Georgia, serif; color:var(--dark); background:var(--light); }
+        header { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; padding:1rem 0; box-shadow:0 4px 6px rgba(0,0,0,.1); position:sticky; top:0; z-index:5; }
+        .container { max-width:1100px; margin:0 auto; padding:0 1rem; }
+        .bar { display:flex; gap:1rem; align-items:center; justify-content:space-between; }
+        .logo { font-weight:bold; font-size:1.2rem; }
+        .btn { background:var(--accent); color:var(--dark); border:none; padding:.6rem 1rem; border-radius:10px; cursor:pointer; text-decoration:none; }
+        .btn-primary { background:var(--primary); color:#fff; }
+        .btn-success { background:#27ae60; color:#fff; }
+        .btn-danger { background:#e74c3c; color:#fff; }
+        .panel { background:#fff; border-radius:var(--radius); box-shadow:0 4px 10px rgba(0,0,0,.08); padding:1rem; margin:1rem 0; }
+        .layout { display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; }
+        .image { background:#eee; border-radius:var(--radius); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+        .image img { width:100%; height:auto; display:block; }
+        .title { font-size:1.8rem; margin:.2rem 0; color:var(--dark); }
+        .artist { color:var(--primary); font-weight:600; margin-bottom:.5rem; }
+        .meta { color:#7f8c8d; margin:.25rem 0; }
+        .price { font-size:1.2rem; font-weight:700; margin-top:.5rem; }
+        .purchase-section { margin-top:1rem; padding-top:1rem; border-top:1px solid #eee; }
+        
+        /* Modal Styles */
+        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); }
+        .modal-content { background-color:#fff; margin:5% auto; padding:2rem; border-radius:var(--radius); width:90%; max-width:500px; position:relative; }
+        .close { color:#aaa; float:right; font-size:28px; font-weight:bold; cursor:pointer; }
+        .close:hover { color:#000; }
+        .form-group { margin-bottom:1rem; }
+        .form-group label { display:block; margin-bottom:.5rem; font-weight:600; }
+        .form-group input { width:100%; padding:.75rem; border:1px solid #ddd; border-radius:8px; font-size:1rem; }
+        .form-group input:focus { outline:none; border-color:var(--primary); }
+        .payment-status { padding:1rem; border-radius:8px; margin:1rem 0; text-align:center; }
+        .payment-status.success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+        .payment-status.error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+        .payment-status.info { background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb; }
+        .mpesa-logo { text-align:center; font-size:2rem; margin:1rem 0; }
+        @media (max-width: 900px){ .layout{ grid-template-columns: 1fr; } }
+    </style>
+    <script>
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+        let currentArtwork = null;
+        let csrfToken = null;
+        let purchasePollTimer = null;
+        let purchasePollDeadline = 0;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCSRFToken();
+            loadArtwork();
+        });
+        
+        async function loadCSRFToken() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/auth/csrf-token`, { credentials: 'include' });
+                if (res.ok) {
+                    const data = await res.json();
+                    csrfToken = data.csrf_token || data.token || '';
+                }
+            } catch(e) {
+                console.error('Failed to load CSRF token:', e);
+            }
+        }
+        
+        function q(name){ const u=new URL(window.location.href); return u.searchParams.get(name); }
+        
+        async function loadArtwork(){
+            const id = q('id');
+            if(!id){ renderError('Missing artwork id'); return; }
+            try{
+                console.log('Loading artwork with ID:', id); // Debug log
+                const res = await fetch(`${API_BASE_URL}/api/artworks/${id}`);
+                console.log('Response status:', res.status); // Debug log
+                const data = await res.json();
+                console.log('Artwork data received:', data); // Debug log
+                if(!data.success || !data.data){ 
+                    console.error('Failed to load artwork:', data.message); // Debug log
+                    renderError(data.message || 'Artwork not found'); 
+                    return; 
+                }
+                currentArtwork = data.data;
+                renderArtwork(data.data);
+            }catch(e){ 
+                console.error('Error loading artwork:', e); // Debug log
+                renderError('Failed to load artwork'); 
+            }
+        }
+        
+        function renderArtwork(a){
+            document.getElementById('title').textContent = a.title || 'Untitled';
+            document.getElementById('artist').textContent = a.artist_name || '';
+            const img = document.getElementById('image');
+            const src = resolveUrl(a.image_url || a.thumbnail_url || '');
+            if(src) img.src = src; else img.alt = 'No image';
+            document.getElementById('description').textContent = a.description || '';
+            document.getElementById('category').textContent = a.category_name || '';
+            document.getElementById('medium').textContent = a.medium || '';
+            document.getElementById('dimensions').textContent = a.dimensions || '';
+            document.getElementById('year').textContent = a.year_created || '';
+            document.getElementById('views').textContent = a.views_count || 0;
+            document.getElementById('price').textContent = a.price ? formatCurrency(a.price) : '';
+            
+            // Show purchase button only if artwork has a price and is approved
+            const purchaseSection = document.getElementById('purchase-section');
+            console.log('Artwork data:', a); // Debug log
+            console.log('Price:', a.price, 'Status:', a.status); // Debug log
+            
+            if (a.price && a.price > 0 && a.status === 'approved') {
+                purchaseSection.style.display = 'block';
+                document.getElementById('purchase-price').textContent = formatCurrency(a.price);
+                console.log('Purchase section shown'); // Debug log
+            } else {
+                purchaseSection.style.display = 'none';
+                console.log('Purchase section hidden - Price:', a.price, 'Status:', a.status); // Debug log
+            }
+        }
+        
+        function renderError(msg){ document.getElementById('content').innerHTML = `<div class="panel">${escapeHtml(msg)}</div>`; }
+        
+        function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+        
+        function resolveUrl(url){
+            if(!url) return '';
+            let u = String(url).replace(/\\\\/g,'/'); // normalize backslashes
+            if (u.startsWith('http')) return u;
+            if (u.startsWith('/')) return u; // already absolute under this host
+            // If full filesystem path may be stored, strip drive/root
+            u = u.replace(/^[A-Za-z]:\//, '').replace(/^\//, '');
+            // If path already contains project base
+            const baseIdx = u.indexOf('/usanii_mashariki/');
+            if (baseIdx !== -1) return u.substring(baseIdx);
+            // Prefer public/uploads
+            const pubIdx = u.indexOf('public/uploads/');
+            if (pubIdx !== -1) return `/usanii_mashariki/${u.substring(pubIdx)}`;
+            if (u.startsWith('uploads/')) return `/usanii_mashariki/public/${u}`;
+            return `/usanii_mashariki/${u}`;
+        }
+        
+        function formatCurrency(v){ const n=Number(v); if(Number.isNaN(n)) return ''; return new Intl.NumberFormat(undefined,{style:'currency',currency:'KES',maximumFractionDigits:0}).format(n); }
+        
+        // Enquiry Modal Functions
+        function openPaymentModal() {
+            console.log('Opening payment modal...');
+            if (!currentArtwork) {
+                console.error('No current artwork data');
+                return;
+            }
+            const modal = document.getElementById('payment-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.getElementById('payment-status').innerHTML = '';
+                document.getElementById('payment-form').reset();
+            } else {
+                console.error('Payment modal element not found');
+            }
+        }
+        
+        function closePaymentModal() {
+            document.getElementById('payment-modal').style.display = 'none';
+        }
+        
+        async function initiatePurchase() {
+            if (!currentArtwork) {
+                console.error('Missing artwork data');
+                return;
+            }
+            const phone = document.getElementById('phone').value.trim();
+            if (!phone) {
+                showPaymentStatus('Enter your phone number (e.g., 07XXXXXXXX).', 'error');
+                return;
+            }
+            const headers = { 'Content-Type': 'application/json' };
+            if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
+            showPaymentStatus('Sending STK push... Check your phone for the prompt.', 'info');
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/payments/mpesa/stk-push`, {
+                    method: 'POST',
+                    headers,
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        artwork_id: currentArtwork.id,
+                        amount: currentArtwork.price,
+                        phone: phone
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    showPaymentStatus(data.message || 'Payment initiation failed', 'error');
+                    return;
+                }
+                showPaymentStatus('STK push sent. Complete on your phone...', 'info');
+                startPurchasePolling();
+            } catch (e) {
+                console.error(e);
+                showPaymentStatus('Network error. Please try again.', 'error');
+            }
+        }
+
+        function startPurchasePolling() {
+            stopPurchasePolling();
+            purchasePollDeadline = Date.now() + (3 * 60 * 1000); // 3 minutes
+            purchasePollTimer = setInterval(async () => {
+                if (!currentArtwork) { stopPurchasePolling(); return; }
+                if (Date.now() > purchasePollDeadline) { stopPurchasePolling(); return; }
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/artworks/${currentArtwork.id}`, { credentials: 'include' });
+                    const data = await res.json();
+                    if (data && data.success && data.data) {
+                        currentArtwork = data.data;
+                        if (currentArtwork.status === 'sold') {
+                            stopPurchasePolling();
+                            showPaymentStatus('Payment successful! Artwork marked as sold.', 'success');
+                            document.getElementById('purchase-section').style.display = 'none';
+                            setTimeout(() => { closePaymentModal(); }, 1500);
+                        }
+                    }
+                } catch (e) {
+                    // ignore transient errors during polling
+                }
+            }, 4000);
+        }
+
+        function stopPurchasePolling() {
+            if (purchasePollTimer) {
+                clearInterval(purchasePollTimer);
+                purchasePollTimer = null;
+            }
+        }
+        
+        function showPaymentStatus(message, type) {
+            const statusDiv = document.getElementById('payment-status');
+            statusDiv.className = `payment-status ${type}`;
+            statusDiv.textContent = message;
+        }
+        
+        // (Removed legacy payment polling)
+        
+        async function updateArtworkStatus(status) {
+            if (!currentArtwork || !csrfToken) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/artworks/${currentArtwork.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        status: status
+                    })
+                });
+                
+                if (response.ok) {
+                    currentArtwork.status = status;
+                    // Hide purchase button
+                    document.getElementById('purchase-section').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Failed to update artwork status:', error);
+            }
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('payment-modal');
+            if (event.target === modal) {
+                closePaymentModal();
+            }
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container bar">
+            <div class="logo">🎨 Usanii Mashariki — Artwork</div>
+            <nav>
+                <a class="btn" href="gallery.html">Back to Gallery</a>
+            </nav>
+        </div>
+    </header>
+    <main id="content" class="container">
+        <div class="panel">
+            <div class="layout">
+                <div class="image"><img id="image" alt="Artwork image" /></div>
+                <div>
+                    <div class="title" id="title"></div>
+                    <div class="artist" id="artist"></div>
+                    <div class="price" id="price"></div>
+                    <div class="meta">Category: <span id="category"></span></div>
+                    <div class="meta">Medium: <span id="medium"></span></div>
+                    <div class="meta">Dimensions: <span id="dimensions"></span></div>
+                    <div class="meta">Year: <span id="year"></span></div>
+                    <div class="meta">Views: <span id="views"></span></div>
+                    
+                    <!-- Purchase Section -->
+                    <div id="purchase-section" class="purchase-section" style="display: none;">
+                        <h3>Purchase This Artwork</h3>
+                        <p>Price: <strong id="purchase-price"></strong></p>
+                        <button class="btn btn-primary" onclick="openPaymentModal()" style="cursor: pointer;">Buy via M-Pesa</button>
+                    </div>
+                    
+
+                </div>
+            </div>
+        </div>
+        <div class="panel">
+            <h3>Description</h3>
+            <p id="description"></p>
+        </div>
+    </main>
+    
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <h2>Buy via M-Pesa</h2>
+            
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="e.g., 0712345678">
+                </div>
+                
+                <div id="payment-status"></div>
+                
+                <button type="button" class="btn btn-success" onclick="initiatePurchase()">Pay Now</button>
+                <button type="button" class="btn btn-danger" onclick="closePaymentModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+

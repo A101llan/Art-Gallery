@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exhibitions - Usanii Mashariki</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <style>
+        :root { --primary:#2c5530; --secondary:#8B4513; --accent:#D4AF37; --light:#f8f9fa; --dark:#2c3e50; --white:#fff; --radius:12px; }
+        body { margin:0; font-family: Georgia, serif; color:var(--dark); background:var(--light); }
+        header { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; padding:1rem 0; box-shadow:0 4px 6px rgba(0,0,0,.1); position:sticky; top:0; z-index:5; }
+        .container { max-width:1200px; margin:0 auto; padding:0 1rem; }
+        .bar { display:flex; gap:1rem; align-items:center; justify-content:space-between; }
+        .logo { font-weight:bold; font-size:1.2rem; }
+        .btn { background:var(--accent); color:var(--dark); border:none; padding:.6rem 1rem; border-radius:10px; cursor:pointer; text-decoration:none; }
+        .panel { background:#fff; border-radius:var(--radius); box-shadow:0 4px 10px rgba(0,0,0,.08); padding:1rem; margin:1rem 0; }
+        .controls { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+        .grid { display:grid; gap:1rem; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }
+        .card { background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.06); display:flex; flex-direction:column; }
+        .card-body { padding:1rem; }
+        .title { font-size:1.2rem; margin:.2rem 0; color:var(--dark); }
+        .meta { color:#7f8c8d; font-size:.95rem; margin-bottom:.4rem; }
+        .badge { display:inline-block; padding:.25rem .5rem; border-radius:6px; font-size:.8rem; color:#fff; }
+        .status-active { background: #28a745; }
+        .status-upcoming { background: #17a2b8; }
+        .status-completed { background: #6c757d; }
+        .desc { color:#555; font-size:.95rem; }
+    </style>
+    <script>
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('activeOnly').addEventListener('change', loadExhibitions);
+            loadExhibitions();
+        });
+        async function loadExhibitions(){
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '<div class="panel">Loading exhibitions...</div>';
+            const active = document.getElementById('activeOnly').checked;
+            const params = new URLSearchParams();
+            if (active) params.set('active','true');
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/exhibitions${params.toString()?'?'+params.toString():''}`);
+                const data = await res.json();
+                const items = (data.success?data.data:[]);
+                grid.innerHTML = '';
+                if(items.length===0){ grid.innerHTML = '<div class="panel">No exhibitions found.</div>'; return; }
+                items.forEach(ex => grid.appendChild(renderCard(ex)));
+            } catch(e){
+                grid.innerHTML = '<div class="panel">Failed to load exhibitions.</div>';
+            }
+        }
+        function renderCard(ex){
+            const div = document.createElement('div');
+            div.className = 'card';
+            const start = ex.start_date ? new Date(ex.start_date).toLocaleDateString() : '';
+            const end = ex.end_date ? new Date(ex.end_date).toLocaleDateString() : '';
+            const statusClass = ex.status==='active'?'status-active':(ex.status==='completed'?'status-completed':'status-upcoming');
+            div.innerHTML = `
+                <div class="card-body">
+                    <div class="badge ${statusClass}">${escapeHtml(ex.status||'')}</div>
+                    <div class="title">${escapeHtml(ex.name||'Exhibition')}</div>
+                    <div class="meta">${start} ${end?`- ${end}`:''} • ${ex.artwork_count||0} artworks</div>
+                    <div class="desc">${escapeHtml(ex.description||'')}</div>
+                </div>`;
+            return div;
+        }
+        function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container bar">
+            <div class="logo">🏛️ Usanii Mashariki — Exhibitions</div>
+            <nav>
+                <a class="btn" href="index.html">Home</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div class="panel">
+            <div class="controls">
+                <label><input id="activeOnly" type="checkbox"> Show active only</label>
+            </div>
+        </div>
+        <div id="grid" class="grid"></div>
+    </main>
+</body>
+</html>
+
+

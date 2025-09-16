@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /usanii_mashariki/
+
+# Route only API requests through the PHP router; serve existing files directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ public/index.php/$1 [L]

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artists - Usanii Mashariki</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <style>
+        :root { --primary:#2c5530; --secondary:#8B4513; --accent:#D4AF37; --light:#f8f9fa; --dark:#2c3e50; --white:#fff; --radius:12px; }
+        body { margin:0; font-family: Georgia, serif; color:var(--dark); background:var(--light); }
+        header { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; padding:1rem 0; box-shadow:0 4px 6px rgba(0,0,0,.1); position:sticky; top:0; z-index:5; }
+        .container { max-width:1200px; margin:0 auto; padding:0 1rem; }
+        .bar { display:flex; gap:1rem; align-items:center; justify-content:space-between; }
+        .logo { font-weight:bold; font-size:1.2rem; }
+        .btn { background:var(--accent); color:var(--dark); border:none; padding:.6rem 1rem; border-radius:10px; cursor:pointer; text-decoration:none; }
+        .panel { background:#fff; border-radius:var(--radius); box-shadow:0 4px 10px rgba(0,0,0,.08); padding:1rem; margin:1rem 0; }
+        .grid { display:grid; gap:1rem; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); }
+        .card { background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.06); display:flex; gap:1rem; padding:1rem; align-items:center; }
+        .avatar { width:72px; height:72px; border-radius:50%; object-fit:cover; background:#eee; }
+        .name { font-size:1.1rem; font-weight:600; color:var(--dark); }
+        .meta { color:#7f8c8d; font-size:.95rem; }
+        .bio { color:#555; font-size:.95rem; margin-top:.25rem; }
+    </style>
+    <script>
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+        document.addEventListener('DOMContentLoaded', () => loadArtists());
+        async function loadArtists(){
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '<div class="panel">Loading artists...</div>';
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/artists`);
+                const data = await res.json();
+                const items = (data.success?data.data:[]);
+                grid.innerHTML = '';
+                if(items.length===0){ grid.innerHTML = '<div class="panel">No artists found.</div>'; return; }
+                items.forEach(a => grid.appendChild(renderCard(a)));
+            } catch(e){
+                grid.innerHTML = '<div class="panel">Failed to load artists.</div>';
+            }
+        }
+        function renderCard(a){
+            const div = document.createElement('div');
+            div.className = 'card';
+            let src = resolveUrl(a.profile_image || '');
+            let alt1 = '';
+            if (src) {
+                if (src.includes('/public/uploads/')) alt1 = src.replace('/public/uploads/','/uploads/');
+                else if (src.includes('/uploads/')) alt1 = src.replace('/uploads/','/public/uploads/');
+            }
+            const img = src
+                ? `<img class="avatar" src="${src}" data-alt1="${alt1}" onerror="if(this.dataset.alt1 && this.src!==this.dataset.alt1){this.src=this.dataset.alt1; this.dataset.alt1='';} else {this.src=''; this.alt='No image';}" alt="${escapeHtml(a.name||'')}">`
+                : `<div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e9ecef;color:#6c757d;">🧑‍🎨</div>`;
+            div.innerHTML = `
+                ${img}
+                <div>
+                    <div class="name">${escapeHtml(a.name||'')}</div>
+                    <div class="meta">${a.artwork_count||0} artworks</div>
+                    <div class="bio">${escapeHtml(a.bio||'')}</div>
+                </div>`;
+            return div;
+        }
+        function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+        function resolveUrl(url){ if(!url) return ''; let u=String(url).replace(/\\\\/g,'/'); if(u.startsWith('http')||u.startsWith('/')) return u; u=u.replace(/^[A-Za-z]:\//,'').replace(/^\//,''); const baseIdx=u.indexOf('/usanii_mashariki/'); if(baseIdx!==-1) return u.substring(baseIdx); const pubIdx=u.indexOf('public/uploads/'); if(pubIdx!==-1) return `/usanii_mashariki/${u.substring(pubIdx)}`; if(u.startsWith('uploads/')) return `/usanii_mashariki/public/${u}`; return `/usanii_mashariki/${u}`; }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container bar">
+            <div class="logo">🧑‍🎨 Usanii Mashariki — Artists</div>
+            <nav>
+                <a class="btn" href="index.html">Home</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div id="grid" class="grid"></div>
+    </main>
+</body>
+</html>
+
+

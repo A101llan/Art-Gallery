@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Usanii Mashariki Gallery</title>
+    <meta name="description" content="Join Usanii Mashariki Gallery community. Register as an artist to showcase your work or as a visitor to explore East African art.">
+    
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c5530;
+            --secondary-color: #8B4513;
+            --accent-color: #D4AF37;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
+            --error-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .register-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-hover);
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .register-title {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .register-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .role-option {
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .role-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(44, 85, 48, 0.02);
+        }
+
+        .role-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(44, 85, 48, 0.1);
+            color: var(--primary-color);
+        }
+
+        .role-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .role-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .role-description {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--error-color);
+        }
+
+        .form-input.success {
+            border-color: var(--success-color);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            padding: 0.25rem;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e1e8ed;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: var(--transition);
+            width: 0%;
+        }
+
+        .strength-weak .strength-fill {
+            width: 25%;
+            background: var(--error-color);
+        }
+
+        .strength-fair .strength-fill {
+            width: 50%;
+            background: var(--warning-color);
+        }
+
+        .strength-good .strength-fill {
+            width: 75%;
+            background: #3498db;
+        }
+
+        .strength-strong .strength-fill {
+            width: 100%;
+            background: var(--success-color);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin: 0;
+            margin-top: 0.25rem;
+        }
+
+        .checkbox-group label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .checkbox-group a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: #1e3a21;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .divider {
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e8ed;
+        }
+
+        .divider span {
+            background: var(--white);
+            padding: 0 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .login-link a:hover {
+            color: var(--accent-color);
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-home a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .back-home a:hover {
+            color: var(--primary-color);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .input-error {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .input-error.show {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .register-title {
+                font-size: 1.7rem;
+            }
+
+            .role-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        button:focus,
+        a:focus,
+        input:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <div class="logo">🎨</div>
+            <h1 class="register-title">Join Our Community</h1>
+            <p class="register-subtitle">Create your Usanii Mashariki account</p>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="role-selector">
+            <div class="role-option" data-role="artist">
+                <span class="role-icon">👨‍🎨</span>
+                <div class="role-title">Artist</div>
+                <div class="role-description">Showcase and manage your artworks</div>
+            </div>
+            <div class="role-option selected" data-role="visitor">
+                <span class="role-icon">👀</span>
+                <div class="role-title">Visitor</div>
+                <div class="role-description">Explore and discover art</div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Registration Form -->
+        <form id="registerForm" novalidate>
+            <input type="hidden" id="selectedRole" value="visitor">
+            <input type="hidden" id="csrf_token" value="">
+
+            <div class="form-group">
+                <label for="name" class="form-label">Full Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-input" 
+                    placeholder="Enter your full name"
+                    required
+                    autocomplete="name"
+                >
+                <div class="input-error" id="nameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="Enter your email address"
+                    required
+                    autocomplete="email"
+                >
+                <div class="input-error" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="password-container">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Create a strong password"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
+                        👁️
+                    </button>
+                </div>
+                <div class="password-strength">
+                    <div class="strength-bar">
+                        <div class="strength-fill"></div>
+                    </div>
+                    <span class="strength-text">Password strength</span>
+                </div>
+                <div class="input-error" id="passwordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <div class="password-container">
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        class="form-input" 
+                        placeholder="Confirm your password"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <button type="button" class="password-toggle" id="confirmPasswordToggle" aria-label="Toggle password visibility">
+                        👁️
+                    </button>
+                </div>
+                <div class="input-error" id="confirmPasswordError"></div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                <label for="agreeTerms">
+                    I agree to the <a href="terms.html" target="_blank">Terms of Service</a> 
+                    and <a href="privacy.html" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="registerBtn" disabled>
+                <span id="registerBtnText">Create Account</span>
+                <div class="loading" id="registerLoading" style="display: none;"></div>
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>Already have an account?</span>
+        </div>
+
+        <div class="login-link">
+            <a href="login.html">Sign in here</a>
+        </div>
+
+        <div class="back-home">
+            <a href="index.html">← Back to Homepage</a>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+        
+        // DOM elements
+        const registerForm = document.getElementById('registerForm');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+        const agreeTerms = document.getElementById('agreeTerms');
+        const registerBtn = document.getElementById('registerBtn');
+        const registerBtnText = document.getElementById('registerBtnText');
+        const registerLoading = document.getElementById('registerLoading');
+        const alertContainer = document.getElementById('alertContainer');
+        const selectedRoleInput = document.getElementById('selectedRole');
+        const roleOptions = document.querySelectorAll('.role-option');
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            setupEventListeners();
+            checkAuthStatus();
+            await fetchCsrfToken(); // Ensure token is fetched before user can interact
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Form submission
+            registerForm.addEventListener('submit', handleRegister);
+
+            // Role selection
+            roleOptions.forEach(option => {
+                option.addEventListener('click', selectRole);
+            });
+
+            // Password visibility toggles
+            passwordToggle.addEventListener('click', () => togglePasswordVisibility('password'));
+            confirmPasswordToggle.addEventListener('click', () => togglePasswordVisibility('confirmPassword'));
+
+            // Real-time validation
+            nameInput.addEventListener('blur', validateName);
+            emailInput.addEventListener('blur', validateEmail);
+            passwordInput.addEventListener('input', validatePassword);
+            confirmPasswordInput.addEventListener('blur', validateConfirmPassword);
+
+            // Clear errors on input
+            nameInput.addEventListener('input', () => clearError('name'));
+            emailInput.addEventListener('input', () => clearError('email'));
+            passwordInput.addEventListener('input', () => clearError('password'));
+            confirmPasswordInput.addEventListener('input', () => clearError('confirmPassword'));
+        }
+
+        // Check if user is already authenticated
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        // User is already logged in, redirect to dashboard
+                        window.location.href = getDashboardUrl(data.user.role);
+                    }
+                }
+            } catch (error) {
+                console.log('User not authenticated');
+            }
+        }
+
+        // Handle role selection
+        function selectRole(event) {
+            const selectedRole = event.currentTarget.dataset.role;
+            
+            // Update UI
+            roleOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Update hidden input
+            selectedRoleInput.value = selectedRole;
+        }
+
+        // Handle registration form submission
+        async function handleRegister(event) {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            setLoading(true);
+            clearAlerts();
+
+            const formData = {
+                name: nameInput.value.trim(),
+                email: emailInput.value.trim(),
+                password: passwordInput.value,
+                role: selectedRoleInput.value
+            };
+
+            const csrfToken = document.getElementById('csrf_token').value;
+            if (!csrfToken) {
+                showAlert('Security token missing. Please refresh the page.', 'error');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken // Include CSRF token
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const raw = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(raw);
+                } catch (e) {
+                    data = { success: false, message: raw || 'Invalid server response' };
+                }
+
+                if (data.success) {
+                    showAlert('Registration successful! Redirecting to login...', 'success');
+                    
+                    // Redirect to login page with success message
+                    setTimeout(() => {
+                        window.location.href = `login.html?registered=true&email=${encodeURIComponent(formData.email)}`;
+                    }, 2000);
+                } else {
+                    showAlert(data.message || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Validate entire form
+        function validateForm() {
+            const nameValid = validateName();
+            const emailValid = validateEmail();
+            const passwordValid = validatePassword();
+            const confirmPasswordValid = validateConfirmPassword();
+            const termsValid = validateTerms();
+            
+            return nameValid && emailValid && passwordValid && confirmPasswordValid && termsValid;
+        }
+
+        // Validate name field
+        function validateName() {
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                showInputError('name', 'Name is required');
+                return false;
+            }
+
+            if (name.length < 2) {
+                showInputError('name', 'Name must be at least 2 characters');
+                return false;
+            }
+
+            if (name.length > 100) {
+                showInputError('name', 'Name must be less than 100 characters');
+                return false;
+            }
+
+            clearInputError('name');
+            return true;
+        }
+
+        // Validate email field
+        function validateEmail() {
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                showInputError('email', 'Email is required');
+                return false;
+            }
+
+            if (!isValidEmail(email)) {
+                showInputError('email', 'Please enter a valid email address');
+                return false;
+            }
+
+            clearInputError('email');
+            return true;
+        }
+
+        // Validate password field
+        function validatePassword() {
+            const password = passwordInput.value;
+
+            if (!password) {
+                showInputError('password', 'Password is required');
+                updatePasswordStrength('');
+                return false;
+            }
+
+            // Match backend policy: at least 8 chars, include upper, lower, number, special
+            const meetsPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password);
+            updatePasswordStrength(password);
+
+            if (!meetsPolicy) {
+                showInputError('password', 'At least 8 characters, include uppercase, lowercase, number and special character');
+                return false;
+            }
+
+            clearInputError('password');
+            return true;
+        }
+
+        // Validate confirm password field
+        function validateConfirmPassword() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (!confirmPassword) {
+                showInputError('confirmPassword', 'Please confirm your password');
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                showInputError('confirmPassword', 'Passwords do not match');
+                return false;
+            }
+
+            clearInputError('confirmPassword');
+            return true;
+        }
+
+        // Validate terms agreement
+        function validateTerms() {
+            if (!agreeTerms.checked) {
+                showAlert('You must agree to the Terms of Service and Privacy Policy', 'error');
+                return false;
+            }
+            return true;
+        }
+
+        // Check password strength
+        function checkPasswordStrength(password) {
+            let score = 0;
+            let feedback = '';
+
+            // Length check
+            if (password.length < 8) {
+                return {
+                    score: 0,
+                    feedback: 'Password must be at least 8 characters long'
+                };
+            }
+
+            // Character variety checks
+            if (password.match(/[a-z]/)) score++;
+            if (password.match(/[A-Z]/)) score++;
+            if (password.match(/[0-9]/)) score++;
+            if (password.match(/[^a-zA-Z0-9]/)) score++;
+
+            // Additional length bonus
+            if (password.length >= 12) score++;
+
+            switch (score) {
+                case 0:
+                case 1:
+                    feedback = 'Very weak password';
+                    break;
+                case 2:
+                    feedback = 'Weak password';
+                    break;
+                case 3:
+                    feedback = 'Fair password';
+                    break;
+                case 4:
+                    feedback = 'Good password';
+                    break;
+                case 5:
+                    feedback = 'Strong password';
+                    break;
+            }
+
+            return { score, feedback };
+        }
+
+        // Update password strength indicator
+        function updatePasswordStrength(password) {
+            const strengthBar = document.querySelector('.strength-bar');
+            const strengthText = document.querySelector('.strength-text');
+            
+            if (!password) {
+                strengthBar.className = 'strength-bar';
+                strengthText.textContent = 'Password strength';
+                return;
+            }
+
+            const strength = checkPasswordStrength(password);
+            
+            strengthBar.className = 'strength-bar';
+            switch (strength.score) {
+                case 0:
+                case 1:
+                    strengthBar.classList.add('strength-weak');
+                    break;
+                case 2:
+                    strengthBar.classList.add('strength-fair');
+                    break;
+                case 3:
+                    strengthBar.classList.add('strength-good');
+                    break;
+                case 4:
+                case 5:
+                    strengthBar.classList.add('strength-strong');
+                    break;
+            }
+            
+            strengthText.textContent = strength.feedback;
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(fieldName) {
+            const input = document.getElementById(fieldName);
+            const toggle = document.getElementById(fieldName + 'Toggle');
+            
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            toggle.textContent = type === 'password' ? '👁️' : '🙈';
+        }
+
+        // Show input error
+        function showInputError(fieldName, message) {
+            const input = document.getElementById(fieldName);
+            const errorElement = document.getElementById(fieldName + 'Error');
+            
+            input.classList.add('error');
+            input.classList.remove('success');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+
+        // Clear input error
+        function clearInputError(fieldName) {
+            const input = document.getElementById(fieldName);
+            const errorElement = document.getElementById(fieldName + 'Error');
+            
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+        }
+
+        // Clear error on input
+        function clearError(fieldName) {
+            const input = document.getElementById(fieldName);
+            const errorElement = document.getElementById(fieldName + 'Error');
+            
+            if (input.value.trim()) {
+                input.classList.remove('error');
+                errorElement.classList.remove('show');
+            }
+        }
+
+        // Set loading state
+        function setLoading(loading) {
+            registerBtn.disabled = loading;
+            if (loading) {
+                registerBtnText.style.display = 'none';
+                registerLoading.style.display = 'block';
+            } else {
+                registerBtnText.style.display = 'block';
+                registerLoading.style.display = 'none';
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        // Clear all alerts
+        function clearAlerts() {
+            alertContainer.innerHTML = '';
+        }
+
+        // Get dashboard URL based on user role
+        function getDashboardUrl(role) {
+            switch(role) {
+                case 'staff': return 'staff-dashboard.html';
+                case 'artist': return 'artist-dashboard.html';
+                default: return 'visitor-dashboard.html';
+            }
+        }
+
+        // Utility functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Handle errors gracefully
+        window.addEventListener('error', function(event) {
+            console.error('JavaScript error:', event.error);
+            showAlert('An unexpected error occurred. Please refresh the page and try again.', 'error');
+        });
+
+        // Fetch CSRF token
+        async function fetchCsrfToken() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/csrf-token`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success && data.csrf_token) {
+                    document.getElementById('csrf_token').value = data.csrf_token;
+                    registerBtn.disabled = false; // Enable button once token is set
+                    console.log('CSRF token fetched successfully.', data.csrf_token);
+                } else {
+                    console.error('Failed to fetch CSRF token:', data.message);
+                    showAlert('Failed to load security features. Please refresh.', 'error');
+                    registerBtn.disabled = true; // Keep button disabled if token fetch fails
+                }
+            } catch (error) {
+                console.error('Error fetching CSRF token:', error);
+                showAlert('Network error while loading security features. Please refresh.', 'error');
+                registerBtn.disabled = true; // Keep button disabled on network error
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exhibition - Usanii Mashariki</title>
+    <style>
+        :root { --primary:#2c5530; --secondary:#8B4513; --accent:#D4AF37; --light:#f8f9fa; --dark:#2c3e50; --white:#fff; --radius:12px; }
+        body { margin:0; font-family: Georgia, serif; color:var(--dark); background:var(--light); }
+        header { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; padding:1rem 0; box-shadow:0 4px 6px rgba(0,0,0,.1); position:sticky; top:0; z-index:5; }
+        .container { max-width:1100px; margin:0 auto; padding:0 1rem; }
+        .bar { display:flex; gap:1rem; align-items:center; justify-content:space-between; }
+        .btn { background:var(--accent); color:var(--dark); border:none; padding:.6rem 1rem; border-radius:10px; cursor:pointer; text-decoration:none; }
+        .panel { background:#fff; border-radius:var(--radius); box-shadow:0 4px 10px rgba(0,0,0,.08); padding:1rem; margin:1rem 0; }
+        .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:1rem; }
+        .card { background:#fff; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.08); overflow:hidden; }
+        .thumb { width:100%; height:180px; object-fit:cover; display:block; background:#eee; }
+        .card-body { padding:.75rem; }
+        .meta { color:#7f8c8d; font-size:.9rem; }
+    </style>
+    <script>
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+
+        function q(name){ const u=new URL(window.location.href); return u.searchParams.get(name); }
+
+        function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+
+        function resolveUrl(url){
+            if(!url) return '';
+            let u = String(url).replace(/\\/g,'/');
+            if (u.startsWith('http')) return u;
+            if (u.startsWith('/')) return u;
+            u = u.replace(/^[A-Za-z]:\//, '').replace(/^\//, '');
+            const baseIdx = u.indexOf('/usanii_mashariki/');
+            if (baseIdx !== -1) return u.substring(baseIdx);
+            const pubIdx = u.indexOf('public/uploads/');
+            if (pubIdx !== -1) return `/usanii_mashariki/${u.substring(pubIdx)}`;
+            if (u.startsWith('uploads/')) return `/usanii_mashariki/public/${u}`;
+            return `/usanii_mashariki/${u}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const id = q('id');
+            if (!id) { renderError('Missing exhibition id'); return; }
+            await loadExhibition(id);
+            await loadExhibitionArtworks(id);
+        });
+
+        async function loadExhibition(id){
+            try{
+                const res = await fetch(`${API_BASE_URL}/api/exhibitions/${id}`, { credentials:'include' });
+                const data = await res.json();
+                if (!data.success || !data.data) { renderError(data.message || 'Exhibition not found'); return; }
+                const ex = data.data;
+                document.getElementById('title').textContent = ex.name || 'Untitled Exhibition';
+                document.getElementById('dates').textContent = formatDates(ex.start_date, ex.end_date);
+                document.getElementById('description').textContent = ex.description || '';
+            } catch(e){ renderError('Failed to load exhibition'); }
+        }
+
+        async function loadExhibitionArtworks(id){
+            const grid = document.getElementById('artworks');
+            grid.innerHTML = '<div class="meta">Loading artworks...</div>';
+            try{
+                const res = await fetch(`${API_BASE_URL}/api/exhibition-artworks/${id}/artworks`, { credentials:'include' });
+                const data = await res.json();
+                if (!data.success) { grid.innerHTML = '<div class="meta">Failed to load artworks.</div>'; return; }
+                const list = data.data || [];
+                if (list.length === 0) { grid.innerHTML = '<div class="meta">No artworks in this exhibition yet.</div>'; return; }
+                grid.innerHTML = '';
+                list.forEach(a => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    const primary = resolveUrl(a.thumbnail_url || a.image_url);
+                    const fallback = resolveUrl(a.image_url || '');
+                    card.innerHTML = `
+                        <img class="thumb" src="${primary}" data-alt="${fallback}" onerror="if(this.dataset.alt && this.src!==this.dataset.alt){this.src=this.dataset.alt; this.dataset.alt='';} else {this.style.display='none';}" alt="${escapeHtml(a.title || '')}">
+                        <div class="card-body">
+                            <div><strong>${escapeHtml(a.title || '')}</strong></div>
+                            <div class="meta">${escapeHtml(a.artist_name || '')}</div>
+                            <div class="meta">${escapeHtml(a.category_name || '')}</div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch(e){ grid.innerHTML = '<div class="meta">Failed to load artworks.</div>'; }
+        }
+
+        function formatDates(s,e){
+            const sd = s ? new Date(s) : null; const ed = e ? new Date(e) : null;
+            if (sd && ed) return `${sd.toLocaleDateString()} – ${ed.toLocaleDateString()}`;
+            if (sd) return `${sd.toLocaleDateString()}`; if (ed) return `${ed.toLocaleDateString()}`;
+            return '';
+        }
+
+        function renderError(msg){ document.getElementById('content').innerHTML = `<div class="panel">${escapeHtml(msg)}</div>`; }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container bar">
+            <div class="logo">🏛️ Usanii Mashariki — Exhibition</div>
+            <nav>
+                <a class="btn" href="index.html#exhibitions">Back to Exhibitions</a>
+            </nav>
+        </div>
+    </header>
+    <main id="content" class="container">
+        <div class="panel">
+            <h2 id="title">Loading...</h2>
+            <div class="meta" id="dates"></div>
+            <p id="description"></p>
+        </div>
+        <div class="panel">
+            <h3>Artworks</h3>
+            <div id="artworks" class="grid"></div>
+        </div>
+    </main>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Dashboard - Usanii Mashariki Gallery</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <style>
+        /* General Styles */
+        :root {
+            --primary-color: #2c5530;
+            --secondary-color: #8B4513;
+            --accent-color: #D4AF37;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+            --danger-color: #e74c3c;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent-color);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, var(--primary-color), #1a3a1d);
+            color: var(--white);
+            padding: 2rem 1rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: var(--white);
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .sidebar nav li {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--white);
+            padding: 0.8rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--accent-color);
+        }
+
+        .sidebar .user-info {
+            margin-top: auto; /* Pushes user info to the bottom */
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+        }
+
+        .sidebar .user-info p {
+            margin: 0.5rem 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar .user-info .btn-outline {
+            color: var(--white);
+            border-color: var(--white);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .sidebar .user-info .btn-outline:hover {
+            background: var(--white);
+            color: var(--primary-color);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            color: var(--text-dark);
+        }
+
+        .section-panel {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-panel h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--bg-light);
+            padding-bottom: 1rem;
+        }
+
+        /* Overview Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-card .icon {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .stat-card .label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: var(--bg-light);
+        }
+
+        .data-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group input[type="number"],
+        .form-group input[type="file"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            box-sizing: border-box; /* Ensures padding doesn't increase width */
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 0.5rem;
+        }
+
+        /* Modals */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: auto;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-hover);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-button {
+            color: var(--text-light);
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--danger-color);
+        }
+
+        /* Alerts/Messages */
+        .message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Artwork specific styles */
+        .artwork-thumbnail {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: var(--border-radius);
+            object-fit: cover;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            display: block;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 1rem;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 999;
+            }
+
+            .sidebar .logo {
+                margin-bottom: 0;
+            }
+
+            .sidebar nav {
+                display: none; /* Hide nav by default on small screens */
+            }
+            
+            .sidebar .user-info {
+                margin-top: 0;
+                padding-top: 0;
+                border-top: none;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            🎨 Artist Dashboard
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#overview" class="active" data-section="overview">📊 Overview</a></li>
+                <li><a href="#my-artworks" data-section="my-artworks">🖼️ My Artworks</a></li>
+                <li><a href="#my-submissions" data-section="my-submissions">📮 My Submissions</a></li>
+                <li><a href="#profile" data-section="profile">👤 Profile</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <p>Logged in as: <span id="userName"></span></p>
+            <p>Role: <span id="userRole"></span></p>
+            <button class="btn btn-outline" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1 id="dashboardTitle">Dashboard Overview</h1>
+            <div>
+                <button class="btn btn-primary" id="addArtworkBtn">➕ Add New Artwork</button>
+            </div>
+        </div>
+
+        <section id="overview" class="section-panel">
+            <h2>Your Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon">🖼️</div>
+                    <div class="number" id="totalArtworks">0</div>
+                    <div class="label">Total Artworks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">✔️</div>
+                    <div class="number" id="approvedArtworks">0</div>
+                    <div class="label">Approved Artworks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">⏳</div>
+                    <div class="number" id="pendingArtworks">0</div>
+                    <div class="label">Pending Review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">👁️</div>
+                    <div class="number" id="totalViews">0</div>
+                    <div class="label">Total Views</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="my-artworks" class="section-panel" style="display: none;">
+            <h2>My Artworks</h2>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Views</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myArtworksTableBody">
+                        <tr><td colspan="6" class="text-center">Loading artworks...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="my-submissions" class="section-panel" style="display: none;">
+            <h2>My Submissions</h2>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Artwork</th>
+                            <th>Submitted At</th>
+                            <th>Status</th>
+                            <th>Review Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mySubmissionsTableBody">
+                        <tr><td colspan="4" class="text-center">Loading submissions...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="profile" class="section-panel" style="display: none;">
+            <h2>My Profile</h2>
+            <form id="profileForm">
+                <input type="hidden" id="csrf_token_profile" value="">
+                <div class="form-group">
+                    <label for="profileName">Name</label>
+                    <input type="text" id="profileName" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileEmail">Email</label>
+                    <input type="email" id="profileEmail" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="profilePhone">Phone</label>
+                    <input type="text" id="profilePhone">
+                </div>
+                <div class="form-group">
+                    <label for="profileBio">Bio</label>
+                    <textarea id="profileBio" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="profileImage">Profile Image</label>
+                    <input type="file" id="profileImage" accept="image/*">
+                    <img id="profileImagePreview" class="image-preview" src="#" alt="Profile Image Preview" style="display: none;">
+                </div>
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+                <div id="profileMessage" class="message" style="display: none;"></div>
+            </form>
+        </section>
+    </div>
+
+    <!-- Add Artwork Modal -->
+    <div id="addArtworkModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" data-modal="addArtworkModal">&times;</span>
+            <h2>Add New Artwork</h2>
+            <form id="addArtworkForm" enctype="multipart/form-data">
+                <input type="hidden" id="csrf_token_artwork" value="">
+                <div class="form-group">
+                    <label for="artworkTitle">Title</label>
+                    <input type="text" id="artworkTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="artworkDescription">Description</label>
+                    <textarea id="artworkDescription" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="artworkCategory">Category</label>
+                    <select id="artworkCategory" required>
+                        <option value="">Select Category</option>
+                        <!-- Categories will be loaded here via JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="artworkMedium">Medium</label>
+                    <input type="text" id="artworkMedium">
+                </div>
+                <div class="form-group">
+                    <label for="artworkDimensions">Dimensions (e.g., 24x36 inches)</label>
+                    <input type="text" id="artworkDimensions">
+                </div>
+                <div class="form-group">
+                    <label for="artworkYear">Year Created</label>
+                    <input type="number" id="artworkYear" min="1000" max="2100" value="2025">
+                </div>
+                <div class="form-group">
+                    <label for="artworkPrice">Price (Ksh)</label>
+                    <input type="number" id="artworkPrice" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="artworkImage">Artwork Image</label>
+                    <input type="file" id="artworkImage" accept="image/*" required>
+                    <img id="artworkImagePreview" class="image-preview" src="#" alt="Artwork Image Preview" style="display: none;">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Artwork</button>
+                <div id="addArtworkMessage" class="message" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Artwork Modal -->
+    <div id="editArtworkModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" data-modal="editArtworkModal">&times;</span>
+            <h2>Edit Artwork</h2>
+            <form id="editArtworkForm">
+                <input type="hidden" id="editArtworkId">
+                <input type="hidden" id="csrf_token_edit_artwork" value="">
+                <div class="form-group">
+                    <label for="editArtworkTitle">Title</label>
+                    <input type="text" id="editArtworkTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editArtworkDescription">Description</label>
+                    <textarea id="editArtworkDescription" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editArtworkCategory">Category</label>
+                    <select id="editArtworkCategory" required>
+                        <option value="">Select Category</option>
+                        <!-- Categories will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editArtworkMedium">Medium</label>
+                    <input type="text" id="editArtworkMedium">
+                </div>
+                <div class="form-group">
+                    <label for="editArtworkDimensions">Dimensions</label>
+                    <input type="text" id="editArtworkDimensions">
+                </div>
+                <div class="form-group">
+                    <label for="editArtworkYear">Year Created</label>
+                    <input type="number" id="editArtworkYear" min="1000" max="2100">
+                </div>
+                <div class="form-group">
+                    <label for="editArtworkPrice">Price (Ksh)</label>
+                    <input type="number" id="editArtworkPrice" step="0.01" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label>Current Image</label>
+                    <img id="currentArtworkImage" class="image-preview" src="#" alt="Current Artwork Image">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-danger" onclick="deleteArtwork()">Delete Artwork</button>
+                <div id="editArtworkMessage" class="message" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Submit Artwork Modal -->
+    <div id="submitArtworkModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" data-modal="submitArtworkModal">&times;</span>
+            <h2>Submit Artwork for Review</h2>
+            <form id="submitArtworkForm">
+                <input type="hidden" id="submitArtworkId">
+                <input type="hidden" id="csrf_token_submit_artwork" value="">
+                <p>You are about to submit "<strong id="submissionArtworkTitle"></strong>" for review. Once submitted, its status will change to 'Submitted'.</p>
+                <div class="form-group">
+                    <label for="submissionNotes">Notes for Reviewer (Optional)</label>
+                    <textarea id="submissionNotes" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Confirm Submission</button>
+                <div id="submitArtworkMessage" class="message" style="display: none;"></div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+        let currentUser = null;
+        let categories = []; // Store fetched categories globally
+
+        const sections = {
+            'overview': document.getElementById('overview'),
+            'my-artworks': document.getElementById('my-artworks'),
+            'my-submissions': document.getElementById('my-submissions'),
+            'profile': document.getElementById('profile')
+        };
+
+        const dashboardTitle = document.getElementById('dashboardTitle');
+        const userNameSpan = document.getElementById('userName');
+        const userRoleSpan = document.getElementById('userRole');
+
+        // Modals and Forms
+        const addArtworkModal = document.getElementById('addArtworkModal');
+        const addArtworkForm = document.getElementById('addArtworkForm');
+        const addArtworkBtn = document.getElementById('addArtworkBtn');
+        const addArtworkMessage = document.getElementById('addArtworkMessage');
+        const artworkImageInput = document.getElementById('artworkImage');
+        const artworkImagePreview = document.getElementById('artworkImagePreview');
+        const artworkCategorySelect = document.getElementById('artworkCategory');
+        const csrfTokenArtworkInput = document.getElementById('csrf_token_artwork');
+
+        const editArtworkModal = document.getElementById('editArtworkModal');
+        const editArtworkForm = document.getElementById('editArtworkForm');
+        const editArtworkMessage = document.getElementById('editArtworkMessage');
+        const editArtworkCategorySelect = document.getElementById('editArtworkCategory');
+        const currentArtworkImage = document.getElementById('currentArtworkImage');
+        const csrfTokenEditArtworkInput = document.getElementById('csrf_token_edit_artwork');
+        let currentEditArtworkId = null; // To keep track of the artwork being edited
+
+        const submitArtworkModal = document.getElementById('submitArtworkModal');
+        const submitArtworkForm = document.getElementById('submitArtworkForm');
+        const submitArtworkMessage = document.getElementById('submitArtworkMessage');
+        const submissionArtworkTitle = document.getElementById('submissionArtworkTitle');
+        const submitArtworkIdInput = document.getElementById('submitArtworkId');
+        const csrfTokenSubmitArtworkInput = document.getElementById('csrf_token_submit_artwork');
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuthAndRedirect();
+            await fetchCsrfToken();
+            await loadCategories(); // Load categories for forms
+            
+            // Initial load of data for the default active section
+            if (currentUser) {
+                loadArtistStats();
+                loadMyArtworks();
+                loadMySubmissions();
+                loadProfile();
+            }
+        });
+
+        // CSRF Token Fetching
+        async function fetchCsrfToken() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/csrf-token`, { credentials: 'include' });
+                const data = await response.json();
+                if (data.success) {
+                    csrfTokenArtworkInput.value = data.csrf_token;
+                    csrfTokenEditArtworkInput.value = data.csrf_token;
+                    csrfTokenSubmitArtworkInput.value = data.csrf_token;
+                    document.getElementById('csrf_token_profile').value = data.csrf_token;
+                } else {
+                    console.error('Failed to fetch CSRF token:', data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching CSRF token:', error);
+            }
+        }
+
+        async function checkAuthAndRedirect() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
+                const data = await response.json();
+
+                if (!data.success || !data.user || data.user.role !== 'artist') {
+                    window.location.href = 'login.html'; // Redirect to login if not authenticated as artist
+                } else {
+                    currentUser = data.user;
+                    userNameSpan.textContent = currentUser.name;
+                    userRoleSpan.textContent = currentUser.role;
+                }
+            } catch (error) {
+                console.error('Authentication check failed:', error);
+                window.location.href = 'login.html'; // Redirect on network error or server issue
+            }
+        }
+
+        async function logout() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    window.location.href = 'index.html'; // Redirect to homepage after logout
+                } else {
+                    alert('Logout failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('Logout failed due to a network error.');
+            }
+        }
+
+        // Sidebar Navigation
+        document.querySelectorAll('.sidebar nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.dataset.section;
+                showSection(sectionId);
+
+                // Update active class
+                document.querySelectorAll('.sidebar nav a').forEach(navLink => navLink.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function showSection(sectionId) {
+            for (const key in sections) {
+                sections[key].style.display = 'none';
+            }
+            sections[sectionId].style.display = 'block';
+            dashboardTitle.textContent = this.event ? this.event.target.textContent.split(' ')[1] + ' ' + this.event.target.textContent.split(' ')[2] : 'Overview'; // Update title
+        }
+
+        // Load Artist Stats
+        async function loadArtistStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/artworks?artist_id=${currentUser.id}`, { credentials: 'include' });
+                const data = await response.json();
+
+                if (data.success) {
+                    const artworks = data.data;
+                    document.getElementById('totalArtworks').textContent = artworks.length;
+                    document.getElementById('approvedArtworks').textContent = artworks.filter(a => a.status === 'approved').length;
+                    document.getElementById('pendingArtworks').textContent = artworks.filter(a => a.status === 'submitted' || a.status === 'draft').length;
+                    document.getElementById('totalViews').textContent = artworks.reduce((sum, a) => sum + parseInt(a.views_count), 0);
+                }
+            } catch (error) {
+                console.error('Error loading artist stats:', error);
+            }
+        }
+
+        // Load My Artworks
+        async function loadMyArtworks() {
+            const tableBody = document.getElementById('myArtworksTableBody');
+            tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Loading artworks...</td></tr>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/artworks?artist_id=${currentUser.id}`, { credentials: 'include' });
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    tableBody.innerHTML = '';
+                    data.data.forEach(artwork => {
+                        const row = tableBody.insertRow();
+                        {
+                            let src = resolveUrl(artwork.thumbnail_url || artwork.image_url);
+                            let alt1 = '';
+                            let alt2 = '';
+                            if (src) {
+                                if (src.includes('/public/uploads/')) {
+                                    alt1 = src.replace('/public/uploads/','/uploads/');
+                                } else if (src.includes('/uploads/')) {
+                                    alt1 = src.replace('/uploads/','/public/uploads/');
+                                }
+                                if (artwork.image_url) {
+                                    const original = resolveUrl(artwork.image_url);
+                                    if (original && original !== src && original !== alt1) alt2 = original;
+                                }
+                            }
+                            const imgTag = src ? `<img src=\"${src}\" data-alt1=\"${alt1}\" data-alt2=\"${alt2}\" onerror=\"if(this.dataset.alt1 && this.src!==this.dataset.alt1){this.src=this.dataset.alt1; this.dataset.alt1='';} else if(this.dataset.alt2 && this.src!==this.dataset.alt2){this.src=this.dataset.alt2; this.dataset.alt2='';} else {this.src=''; this.alt='No image';}\" alt=\"${escapeHtml(artwork.title)}\" class=\"artwork-thumbnail\">` : '🖼️';
+                            row.innerHTML = `
+                                <td>${imgTag}</td>
+                                <td>${escapeHtml(artwork.title)}</td>
+                                <td>${escapeHtml(artwork.category_name || 'N/A')}</td>
+                                <td>${artwork.status}</td>
+                                <td>${artwork.views_count}</td>
+                                <td>
+                                    <button class=\"btn btn-primary btn-sm\" onclick=\"openEditArtworkModal(${artwork.id})\">Edit</button>
+                                    ${artwork.status === 'draft' || artwork.status === 'rejected' ? 
+                                        `<button class=\"btn btn-info btn-sm\" onclick=\"openSubmitArtworkModal(${artwork.id}, '${escapeHtml(artwork.title)}')\">Submit</button>` : ''}
+                                </td>
+                            `;
+                        }
+                    });
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No artworks found.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading my artworks:', error);
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center message error">Failed to load artworks.</td></tr>';
+            }
+        }
+
+        // Load My Submissions
+        async function loadMySubmissions() {
+            const tableBody = document.getElementById('mySubmissionsTableBody');
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Loading submissions...</td></tr>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/submissions?artist_id=${currentUser.id}`, { credentials: 'include' });
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    tableBody.innerHTML = '';
+                    data.data.forEach(submission => {
+                        const row = tableBody.insertRow();
+                        row.innerHTML = `
+                            <td>${escapeHtml(submission.artwork_title)}</td>
+                            <td>${new Date(submission.submitted_at).toLocaleDateString()}</td>
+                            <td>${submission.status}</td>
+                            <td>${escapeHtml(submission.review_notes || 'N/A')}</td>
+                        `;
+                    });
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="text-center">No submissions found.</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading my submissions:', error);
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center message error">Failed to load submissions.</td></tr>';
+            }
+        }
+
+        // Load Profile
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/${currentUser.id}`, { credentials: 'include' });
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const user = data.data;
+                    document.getElementById('profileName').value = user.name || '';
+                    document.getElementById('profileEmail').value = user.email || '';
+                    document.getElementById('profilePhone').value = user.phone || '';
+                    document.getElementById('profileBio').value = user.bio || '';
+                    if (user.profile_image) {
+                        document.getElementById('profileImagePreview').src = user.profile_image;
+                        document.getElementById('profileImagePreview').style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Update Profile
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const messageDiv = document.getElementById('profileMessage');
+            messageDiv.style.display = 'none';
+            messageDiv.className = 'message';
+
+            const name = document.getElementById('profileName').value;
+            const phone = document.getElementById('profilePhone').value;
+            const bio = document.getElementById('profileBio').value;
+            const profileImageFile = document.getElementById('profileImage').files[0];
+            const csrfToken = document.getElementById('csrf_token_profile').value;
+
+            let imageUrl = document.getElementById('profileImagePreview').src === window.location.href ? '' : document.getElementById('profileImagePreview').src; // Keep existing image if not changed
+
+            if (profileImageFile) {
+                const uploadResult = await uploadFile(profileImageFile, csrfToken);
+                if (uploadResult.success) {
+                    imageUrl = uploadResult.data.image_url;
+                } else {
+                    showMessage(messageDiv, uploadResult.message, 'error');
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ name, phone, bio, profile_image: imageUrl })
+                });
+                const data = await response.json();
+                showMessage(messageDiv, data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    // Update current user info in local state and UI
+                    currentUser.name = name;
+                    userNameSpan.textContent = name;
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showMessage(messageDiv, 'Failed to update profile.', 'error');
+            }
+        });
+
+        // Add Artwork
+        addArtworkBtn.addEventListener('click', async () => {
+            await resetAndPopulateCategorySelect(artworkCategorySelect);
+            addArtworkForm.reset();
+            artworkImagePreview.style.display = 'none';
+            addArtworkMessage.style.display = 'none';
+            addArtworkModal.style.display = 'flex';
+        });
+
+        artworkImageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    artworkImagePreview.src = e.target.result;
+                    artworkImagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                artworkImagePreview.style.display = 'none';
+            }
+        });
+
+        addArtworkForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            addArtworkMessage.style.display = 'none';
+            addArtworkMessage.className = 'message';
+
+            const csrfToken = csrfTokenArtworkInput.value;
+            const artworkImageFile = artworkImageInput.files[0];
+
+            if (!artworkImageFile) {
+                showMessage(addArtworkMessage, 'Please select an image for your artwork.', 'error');
+                return;
+            }
+
+            let imageUrl = '';
+            let thumbnailUrl = '';
+            
+            // Upload image first
+            const uploadResult = await uploadFile(artworkImageFile, csrfToken);
+            if (uploadResult.success) {
+                imageUrl = uploadResult.data.image_url;
+                thumbnailUrl = uploadResult.data.thumbnail_url;
+            } else {
+                showMessage(addArtworkMessage, uploadResult.message, 'error');
+                return;
+            }
+
+            const artworkData = {
+                title: document.getElementById('artworkTitle').value,
+                description: document.getElementById('artworkDescription').value,
+                category_id: document.getElementById('artworkCategory').value,
+                medium: document.getElementById('artworkMedium').value,
+                dimensions: document.getElementById('artworkDimensions').value,
+                year_created: document.getElementById('artworkYear').value,
+                price: document.getElementById('artworkPrice').value,
+                image_url: imageUrl,
+                thumbnail_url: thumbnailUrl,
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/artworks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(artworkData)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(addArtworkMessage, 'Artwork added successfully!', 'success');
+                    addArtworkForm.reset();
+                    artworkImagePreview.style.display = 'none';
+                    loadArtistStats();
+                    loadMyArtworks();
+                    // Optionally close modal after a delay
+                    setTimeout(() => addArtworkModal.style.display = 'none', 2000);
+                } else {
+                    showMessage(addArtworkMessage, result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding artwork:', error);
+                showMessage(addArtworkMessage, 'Failed to add artwork due to a network error.', 'error');
+            }
+        });
+
+        // Edit Artwork
+        async function openEditArtworkModal(artworkId) {
+            currentEditArtworkId = artworkId;
+            await resetAndPopulateCategorySelect(editArtworkCategorySelect);
+            editArtworkMessage.style.display = 'none';
+            editArtworkMessage.className = 'message';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/artworks/${artworkId}`, { credentials: 'include' });
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const artwork = data.data;
+                    document.getElementById('editArtworkId').value = artwork.id;
+                    document.getElementById('editArtworkTitle').value = artwork.title;
+                    document.getElementById('editArtworkDescription').value = artwork.description || '';
+                    document.getElementById('editArtworkCategory').value = artwork.category_id;
+                    document.getElementById('editArtworkMedium').value = artwork.medium || '';
+                    document.getElementById('editArtworkDimensions').value = artwork.dimensions || '';
+                    document.getElementById('editArtworkYear').value = artwork.year_created || '';
+                    document.getElementById('editArtworkPrice').value = artwork.price || '';
+                    
+                    currentArtworkImage.src = resolveUrl(artwork.image_url) || '#';
+                    currentArtworkImage.style.display = artwork.image_url ? 'block' : 'none';
+
+                    editArtworkModal.style.display = 'flex';
+                } else {
+                    alert('Artwork not found or failed to load.');
+                }
+            } catch (error) {
+                console.error('Error fetching artwork for edit:', error);
+                alert('Failed to load artwork details.');
+            }
+        }
+
+        editArtworkForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            editArtworkMessage.style.display = 'none';
+            editArtworkMessage.className = 'message';
+
+            const artworkId = document.getElementById('editArtworkId').value;
+            const csrfToken = csrfTokenEditArtworkInput.value;
+            const updatedData = {
+                title: document.getElementById('editArtworkTitle').value,
+                description: document.getElementById('editArtworkDescription').value,
+                category_id: document.getElementById('editArtworkCategory').value,
+                medium: document.getElementById('editArtworkMedium').value,
+                dimensions: document.getElementById('editArtworkDimensions').value,
+                year_created: document.getElementById('editArtworkYear').value,
+                price: document.getElementById('editArtworkPrice').value,
+            };
+
+            // Remove empty values to avoid sending them to the backend if not changed
+            Object.keys(updatedData).forEach(key => {
+                if (updatedData[key] === '' || updatedData[key] === null) {
+                    delete updatedData[key];
+                }
+            });
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/artworks/${artworkId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(updatedData)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(editArtworkMessage, 'Artwork updated successfully!', 'success');
+                    loadMyArtworks(); // Reload artworks list
+                    setTimeout(() => editArtworkModal.style.display = 'none', 2000);
+                } else {
+                    showMessage(editArtworkMessage, result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating artwork:', error);
+                showMessage(editArtworkMessage, 'Failed to update artwork due to a network error.', 'error');
+            }
+        });
+
+        async function deleteArtwork() {
+            if (!confirm('Are you sure you want to delete this artwork? This action cannot be undone.')) {
+                return;
+            }
+
+            const artworkId = document.getElementById('editArtworkId').value;
+            const csrfToken = csrfTokenEditArtworkInput.value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/artworks/${artworkId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken // CSRF token for DELETE
+                    },
+                    credentials: 'include',
+                });
+                const result = await response.json();
+                const messageDiv = document.getElementById('editArtworkMessage');
+                if (result.success) {
+                    showMessage(messageDiv, 'Artwork deleted successfully.', 'success');
+                    loadMyArtworks();
+                    loadArtistStats();
+                    setTimeout(() => editArtworkModal.style.display = 'none', 2000);
+                } else {
+                    showMessage(messageDiv, result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting artwork:', error);
+                showMessage(document.getElementById('editArtworkMessage'), 'Failed to delete artwork due to a network error.', 'error');
+            }
+        }
+
+        // Submit Artwork
+        function openSubmitArtworkModal(artworkId, artworkTitle) {
+            submitArtworkIdInput.value = artworkId;
+            submissionArtworkTitle.textContent = artworkTitle;
+            document.getElementById('submissionNotes').value = '';
+            submitArtworkMessage.style.display = 'none';
+            submitArtworkModal.style.display = 'flex';
+        }
+
+        submitArtworkForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            submitArtworkMessage.style.display = 'none';
+            submitArtworkMessage.className = 'message';
+
+            const artworkId = submitArtworkIdInput.value;
+            const notes = document.getElementById('submissionNotes').value;
+            const csrfToken = csrfTokenSubmitArtworkInput.value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/submissions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ artwork_id: artworkId, submission_notes: notes })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showMessage(submitArtworkMessage, 'Artwork submitted successfully!', 'success');
+                    loadMyArtworks(); // Refresh artworks list to show updated status
+                    loadArtistStats();
+                    loadMySubmissions(); // Refresh submissions list
+                    setTimeout(() => submitArtworkModal.style.display = 'none', 2000);
+                } else {
+                    showMessage(submitArtworkMessage, result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting artwork:', error);
+                showMessage(submitArtworkMessage, 'Failed to submit artwork due to a network error.', 'error');
+            }
+        });
+
+
+        // Common Functions
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/categories`);
+                const data = await response.json();
+                if (data.success) {
+                    categories = data.data;
+                } else {
+                    console.error('Failed to load categories:', data.message);
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function resetAndPopulateCategorySelect(selectElement) {
+            selectElement.innerHTML = '<option value="">Select Category</option>'; // Clear existing options
+            if (categories.length === 0) {
+                await loadCategories(); // Ensure categories are loaded
+            }
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                selectElement.appendChild(option);
+            });
+        }
+
+        async function uploadFile(file, csrfToken) {
+            const formData = new FormData();
+            formData.append('artwork_image', file);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('File upload error:', error);
+                return { success: false, message: 'File upload failed: Network error' };
+            }
+        }
+
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            element.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Resolve relative image/file URLs to absolute web paths
+        function resolveUrl(url) {
+            if (!url) return '';
+            if (url.startsWith('http') || url.startsWith('/')) return url;
+            return `${window.location.origin}/usanii_mashariki/${url}`;
+        }
+
+        // Close Modals
+        document.querySelectorAll('.close-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.getElementById(this.dataset.modal).style.display = 'none';
+            });
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == addArtworkModal) {
+                addArtworkModal.style.display = 'none';
+            }
+            if (event.target == editArtworkModal) {
+                editArtworkModal.style.display = 'none';
+            }
+            if (event.target == submitArtworkModal) {
+                submitArtworkModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

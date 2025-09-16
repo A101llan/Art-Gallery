@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Dashboard - Usanii Mashariki</title>
+    <style>
+        body { font-family: Georgia, serif; margin: 0; background: #f8f9fa; color: #2c3e50; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        header { background: linear-gradient(135deg, #2c5530, #8B4513); color: #fff; padding: 1rem 0; }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: bold; font-size: 1.4rem; }
+        .panel { background: #fff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.08); padding: 1.5rem; margin-top: 1.5rem; }
+        .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+        .card { background: #f8f9fa; border-radius: 10px; padding: 1rem; box-shadow: inset 0 0 8px rgba(0,0,0,0.04); }
+        .btn { display: inline-block; padding: .7rem 1.1rem; border-radius: 10px; border: 0; cursor: pointer; background: #D4AF37; color: #2c3e50; text-decoration: none; }
+        .thumb { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; background: #eee; }
+    </style>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <script>
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+        document.addEventListener('DOMContentLoaded', async () => {
+            await ensureAuth();
+            loadFeatured();
+            loadActiveExhibitions();
+        });
+        async function ensureAuth() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
+                if (res.ok) {
+                    const data = await res.json();
+                    const name = data?.user?.name || 'Visitor';
+                    document.getElementById('welcome').textContent = `Welcome, ${name}`;
+                }
+            } catch(e) {}
+        }
+        async function loadFeatured() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/artworks?featured=true&limit=6`);
+                const data = await res.json();
+                const container = document.getElementById('featured');
+                container.innerHTML = '';
+                (data.success ? data.data : []).forEach(a => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    let src = resolveUrl(a.thumbnail_url || a.image_url || '');
+                    let alt1 = '';
+                    let alt2 = '';
+                    if (src) {
+                        if (src.includes('/public/uploads/')) alt1 = src.replace('/public/uploads/','/uploads/');
+                        else if (src.includes('/uploads/')) alt1 = src.replace('/uploads/','/public/uploads/');
+                        if (a.image_url) {
+                            const original = resolveUrl(a.image_url);
+                            if (original && original !== src && original !== alt1) alt2 = original;
+                        }
+                    }
+                    const img = src ? `<img class=\"thumb\" src=\"${src}\" data-alt1=\"${alt1}\" data-alt2=\"${alt2}\" onerror=\"if(this.dataset.alt1 && this.src!==this.dataset.alt1){this.src=this.dataset.alt1; this.dataset.alt1='';} else if(this.dataset.alt2 && this.src!==this.dataset.alt2){this.src=this.dataset.alt2; this.dataset.alt2='';} else {this.src=''; this.alt='No image';}\" alt=\"${a.title || ''}\">` : `<div class=\"thumb\" style=\"display:flex;align-items:center;justify-content:center;\">🖼️</div>`;
+                    div.innerHTML = `
+                        ${img}
+                        <h3>${escapeHtml(a.title || 'Untitled')}</h3>
+                        <p>By ${escapeHtml(a.artist_name || 'Unknown')}</p>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch(e) {}
+        }
+        async function loadActiveExhibitions() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/exhibitions?active=true&limit=4`);
+                const data = await res.json();
+                const container = document.getElementById('exhibitions');
+                container.innerHTML = '';
+                (data.success ? data.data : []).forEach(ex => {
+                    const div = document.createElement('div');
+                    const start = new Date(ex.start_date).toLocaleDateString();
+                    const end = new Date(ex.end_date).toLocaleDateString();
+                    div.className = 'card';
+                    div.innerHTML = `
+                        <h3>${escapeHtml(ex.name || 'Exhibition')}</h3>
+                        <p>${start} - ${end}</p>
+                        <p>${escapeHtml(ex.description || '')}</p>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch(e) {}
+        }
+        function escapeHtml(t){ const d=document.createElement('div'); d.textContent=t||''; return d.innerHTML; }
+        function resolveUrl(url){ if(!url) return ''; let u=String(url).replace(/\\\\/g,'/'); if(u.startsWith('http')||u.startsWith('/')) return u; u=u.replace(/^[A-Za-z]:\//,'').replace(/^\//,''); const baseIdx=u.indexOf('/usanii_mashariki/'); if(baseIdx!==-1) return u.substring(baseIdx); const pubIdx=u.indexOf('public/uploads/'); if(pubIdx!==-1) return `/usanii_mashariki/${u.substring(pubIdx)}`; if(u.startsWith('uploads/')) return `/usanii_mashariki/public/${u}`; return `/usanii_mashariki/${u}`; }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">🎨 Usanii Mashariki</div>
+            <nav>
+                <a class="btn" href="purchases.html">My Purchases</a>
+                <a class="btn" href="index.html">Home</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div class="panel">
+            <h2 id="welcome">Welcome, Visitor</h2>
+            <p>Explore featured artworks and current exhibitions.</p>
+        </div>
+        <div class="panel">
+            <h2>Featured Artworks</h2>
+            <div id="featured" class="grid">
+                <div class="card">Loading...</div>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Current Exhibitions</h2>
+            <div id="exhibitions" class="grid">
+                <div class="card">Loading...</div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+
+

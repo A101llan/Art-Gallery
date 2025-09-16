@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Usanii Mashariki Gallery</title>
+    <meta name="description" content="Login to your Usanii Mashariki Gallery account to access your dashboard and manage your artworks.">
+    
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c5530;
+            --secondary-color: #8B4513;
+            --accent-color: #D4AF37;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
+            --error-color: #e74c3c;
+            --success-color: #27ae60;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .login-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-hover);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .login-title {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--error-color);
+        }
+
+        .form-input.success {
+            border-color: var(--success-color);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            padding: 0.25rem;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remember-me input {
+            width: auto;
+        }
+
+        .forgot-password {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .forgot-password:hover {
+            color: var(--accent-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: #1e3a21;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .divider {
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e8ed;
+        }
+
+        .divider span {
+            background: var(--white);
+            padding: 0 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-light);
+        }
+
+        .register-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .register-link a:hover {
+            color: var(--accent-color);
+        }
+
+        .back-home {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .back-home a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .back-home a:hover {
+            color: var(--primary-color);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .input-error {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .input-error.show {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .login-title {
+                font-size: 1.7rem;
+            }
+
+            .form-options {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        button:focus,
+        a:focus,
+        input:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="logo">🎨</div>
+            <h1 class="login-title">Welcome Back</h1>
+            <p class="login-subtitle">Sign in to your Usanii Mashariki account</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" novalidate>
+            <input type="hidden" id="csrf_token" value="">
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="Enter your email address"
+                    required
+                    autocomplete="email"
+                >
+                <div class="input-error" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="password-container">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+                    <button type="button" class="password-toggle" id="passwordToggle" aria-label="Toggle password visibility">
+                        👁️
+                    </button>
+                </div>
+                <div class="input-error" id="passwordError"></div>
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe" name="rememberMe">
+                    <span>Remember me</span>
+                </label>
+                <a href="forgot-password.html" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="loginBtn" disabled>
+                <span id="loginBtnText">Sign In</span>
+                <div class="loading" id="loginLoading" style="display: none;"></div>
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>New to Usanii Mashariki?</span>
+        </div>
+
+        <div class="register-link">
+            Don't have an account? <a href="register.html">Create one here</a>
+        </div>
+
+        <div class="back-home">
+            <a href="index.html">← Back to Homepage</a>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        const API_BASE_URL = window.location.origin + '/usanii_mashariki';
+        
+        // DOM elements
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const rememberMe = document.getElementById('rememberMe');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const loginLoading = document.getElementById('loginLoading');
+        const alertContainer = document.getElementById('alertContainer');
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            setupEventListeners();
+            checkAuthStatus();
+            loadRememberedEmail();
+            await fetchCsrfToken(); // Ensure token is fetched before user can interact
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Form submission
+            loginForm.addEventListener('submit', handleLogin);
+
+            // Password visibility toggle
+            passwordToggle.addEventListener('click', togglePasswordVisibility);
+
+            // Real-time validation
+            emailInput.addEventListener('blur', validateEmail);
+            passwordInput.addEventListener('blur', validatePassword);
+            emailInput.addEventListener('input', clearError);
+            passwordInput.addEventListener('input', clearError);
+
+            // Remember me functionality
+            rememberMe.addEventListener('change', handleRememberMe);
+        }
+
+        // Check if user is already authenticated
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        // User is already logged in, redirect to dashboard
+                        window.location.href = getDashboardUrl(data.user.role);
+                    }
+                }
+            } catch (error) {
+                console.log('User not authenticated');
+            }
+        }
+
+        // Handle login form submission
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            setLoading(true);
+            clearAlerts();
+
+            const formData = {
+                email: emailInput.value.trim(),
+                password: passwordInput.value
+            };
+
+            const csrfToken = document.getElementById('csrf_token').value;
+            if (!csrfToken) {
+                showAlert('Security token missing. Please refresh the page.', 'error');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken // Include CSRF token
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const raw = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(raw);
+                } catch (e) {
+                    data = { success: false, message: raw || 'Invalid server response' };
+                }
+
+                if (data.success) {
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    // Save email if remember me is checked
+                    if (rememberMe.checked) {
+                        localStorage.setItem('rememberedEmail', formData.email);
+                    } else {
+                        localStorage.removeItem('rememberedEmail');
+                    }
+
+                    // Redirect to appropriate dashboard
+                    setTimeout(() => {
+                        window.location.href = getDashboardUrl(data.user.role);
+                    }, 1000);
+                } else {
+                    showAlert(data.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Network error. Please try again.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Validate entire form
+        function validateForm() {
+            const emailValid = validateEmail();
+            const passwordValid = validatePassword();
+            return emailValid && passwordValid;
+        }
+
+        // Validate email field
+        function validateEmail() {
+            const email = emailInput.value.trim();
+            const emailError = document.getElementById('emailError');
+
+            if (!email) {
+                showInputError('email', 'Email is required');
+                return false;
+            }
+
+            if (!isValidEmail(email)) {
+                showInputError('email', 'Please enter a valid email address');
+                return false;
+            }
+
+            clearInputError('email');
+            return true;
+        }
+
+        // Validate password field
+        function validatePassword() {
+            const password = passwordInput.value;
+            const passwordError = document.getElementById('passwordError');
+
+            if (!password) {
+                showInputError('password', 'Password is required');
+                return false;
+            }
+
+            if (password.length < 8) {
+                showInputError('password', 'Password must be at least 8 characters');
+                return false;
+            }
+
+            clearInputError('password');
+            return true;
+        }
+
+        // Show input error
+        function showInputError(fieldName, message) {
+            const input = document.getElementById(fieldName);
+            const errorElement = document.getElementById(fieldName + 'Error');
+            
+            input.classList.add('error');
+            input.classList.remove('success');
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+
+        // Clear input error
+        function clearInputError(fieldName) {
+            const input = document.getElementById(fieldName);
+            const errorElement = document.getElementById(fieldName + 'Error');
+            
+            input.classList.remove('error');
+            input.classList.add('success');
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+        }
+
+        // Clear error on input
+        function clearError(event) {
+            const fieldName = event.target.name || event.target.id;
+            const input = event.target;
+            const errorElement = document.getElementById(fieldName + 'Error');
+            
+            if (input.value.trim()) {
+                input.classList.remove('error');
+                errorElement.classList.remove('show');
+            }
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            passwordToggle.textContent = type === 'password' ? '👁️' : '🙈';
+        }
+
+        // Handle remember me functionality
+        function handleRememberMe() {
+            if (!rememberMe.checked) {
+                localStorage.removeItem('rememberedEmail');
+            }
+        }
+
+        // Load remembered email
+        function loadRememberedEmail() {
+            const rememberedEmail = localStorage.getItem('rememberedEmail');
+            if (rememberedEmail) {
+                emailInput.value = rememberedEmail;
+                rememberMe.checked = true;
+            }
+        }
+
+        // Set loading state
+        function setLoading(loading) {
+            loginBtn.disabled = loading;
+            if (loading) {
+                loginBtnText.style.display = 'none';
+                loginLoading.style.display = 'block';
+            } else {
+                loginBtnText.style.display = 'block';
+                loginLoading.style.display = 'none';
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+        }
+
+        // Clear all alerts
+        function clearAlerts() {
+            alertContainer.innerHTML = '';
+        }
+
+        // Get dashboard URL based on user role
+        function getDashboardUrl(role) {
+            switch(role) {
+                case 'staff': return 'staff-dashboard.html';
+                case 'artist': return 'artist-dashboard.html';
+                default: return 'visitor-dashboard.html';
+            }
+        }
+
+        // Utility functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Fetch CSRF token
+        async function fetchCsrfToken() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/csrf-token`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success && data.csrf_token) {
+                    document.getElementById('csrf_token').value = data.csrf_token;
+                    loginBtn.disabled = false; // Enable button once token is set
+                    console.log('CSRF token fetched successfully.', data.csrf_token);
+                } else {
+                    console.error('Failed to fetch CSRF token:', data.message);
+                    showAlert('Failed to load security features. Please refresh.', 'error');
+                    loginBtn.disabled = true; // Keep button disabled if token fetch fails
+                }
+            } catch (error) {
+                console.error('Error fetching CSRF token:', error);
+                showAlert('Network error while loading security features. Please refresh.', 'error');
+                loginBtn.disabled = true; // Keep button disabled on network error
+            }
+        }
+
+        // Handle errors gracefully
+        window.addEventListener('error', function(event) {
+            console.error('JavaScript error:', event.error);
+            showAlert('An unexpected error occurred. Please refresh the page and try again.', 'error');
+        });
+
+        // Handle form submission on Enter key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !loginBtn.disabled) {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
